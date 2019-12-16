@@ -11,4 +11,17 @@ function getLetterAssigment(){
 	esac
 }
 
-player=$( getLetterAssigment )
+function toss(){
+
+	player=$( getLetterAssigment )
+
+	if [ $player == 'X' ]
+	then
+		echo player
+	else
+		echo computer
+	fi
+}
+turn=$(toss)
+echo $turn
+
