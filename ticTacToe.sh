@@ -6,6 +6,7 @@ board=(1 2 3 4 5 6 7 8 9)
 player=""
 turn=""
 winner="null"
+
 function getLetterAssigment(){
 
 	case $(( RANDOM % 2 )) in
@@ -37,7 +38,6 @@ function changeTurn(){
 	else
 		turn="X"
 	fi
-
 }
 
 function setCell(){
@@ -46,7 +46,6 @@ function setCell(){
 
 	while true
 	do
-
 		if [ $player == $turn ]
 		then
 
@@ -55,12 +54,14 @@ function setCell(){
 			if (( $cellNumber > 9 || $cellNumber < 0 ))
 			then
 				echo "Input is invalid"
+
 			elif (( ${board[$cellNumber-1]} == $cellNumber ))
 			then
 				board[$cellNumber-1]=$turn
 				checkWinner
 				changeTurn
 				break
+
 			else
 				echo "Input is invalid or Cell is pre allocated"
 			fi
@@ -99,9 +100,11 @@ function checkWinner(){
 		do
 			check=$check"${board[$s]}"
 		done
+
 		checkLine $check
 		firstDigonal="${board[0]}${board[4]}${board[8]}"
 		checkLine $firstDigonal
+
 		secondDigonal="${board[2]}${board[4]}${board[6]}"
 		checkLine $secondDigonal
 	done
@@ -113,14 +116,13 @@ function checkLine(){
 	if [ $line == "XXX" ]
 	then
 		winner=$turn
-		echo "Winner "$winner
 	elif [ $line == "OOO" ]
 	then
 		winner=$turn
-		echo "winner "$winner
 	fi
 
 }
+
 function main(){
 	read turn player < <(toss)
 	loop=1
@@ -129,5 +131,12 @@ function main(){
 		setCell
 		((loop++))
 	done
+
+	case $winner in
+		X)echo "X is winner";;
+		O)echo "O is winner";;
+		*)echo "Match draw";;
+	esac
 }
+
 main
