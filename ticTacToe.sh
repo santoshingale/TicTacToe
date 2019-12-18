@@ -6,6 +6,7 @@ board=(1 2 3 4 5 6 7 8 9)
 player=""
 turn=""
 winner="null"
+flag=0
 
 function toss(){
 
@@ -61,25 +62,40 @@ function setCell(){
 			fi
 
 		else
-
-			isPlayerWinning $computer 
+			computerMove
 			break
 		fi
 	done
 }
 
+function computerMove(){
+		flag=0
+		isPlayerWinning $computer
+
+		if [ $flag == 0 ]
+		then
+			isPlayerWinning $player
+		fi
+
+		if [ $flag == 0 ]
+		then
+			getRandomLocation
+		fi
+}
+
 function checkWinner(){
 	check=""
+
 	for((i=0,k=3;i<3;i++,k+=3))
 	do
 		check=""
+
 		for((j=i*3;j<k;j++))
 		do
-			#echo $j
 			check=$check"${board[$j]}"
 		done
-			checkLine $check
 
+		checkLine $check
 		check=""
 
 		for((s=i;s<9;s+=3))
@@ -98,17 +114,21 @@ function checkWinner(){
 
 function isPlayerWinning(){
 	z=0
+
 	while [ $z -lt 9 ]
 	do
 		if [ ${board[$z]} != $computer ] && [ ${board[$z]} != $player ]
 		then
 			temp=${board[$z]}
-			board[$z]=$1
+			board[$z]=$1=
 			checkWinner
+
 			if [ $winner != "null" ]
 			then
 				board[$z]=$turn
 				winner="null"
+				flag=1
+				echo "$z"
 				break
 			else
 				board[$z]=$temp
@@ -117,16 +137,14 @@ function isPlayerWinning(){
 		((z++))
 	done
 
-	if [ $z == 9 ]
-	then
-		getRandomLocation
-	fi
 }
 
 function getRandomLocation(){
+
 	while true
 	do
 		random=$((RANDOM % 9 + 1))
+
 		if [ ${board[$random-1]} == $random ] && [ $z == 9 ]
 		then
 			board[$random-1]=$turn
