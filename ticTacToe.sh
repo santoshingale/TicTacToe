@@ -7,18 +7,15 @@ player=""
 turn=""
 winner="null"
 
-function getLetterAssigment(){
-
-	case $(( RANDOM % 2 )) in
-		1) echo "X";;
-		0) echo "O";;
-	esac
-}
-
 function toss(){
 
-	player=$(getLetterAssigment)
-	echo "X $player"
+	case $(( RANDOM % 2 )) in
+		1) player="X"
+			computer="O";;
+		0) player="O"
+			computer="X";;
+	esac
+	echo "X $player $computer"
 }
 
 function printBoard(){
@@ -34,7 +31,7 @@ function changeTurn(){
 
 	if [ $turn == "X" ]
 	then
-		turn="O" 
+		turn="O"
 	else
 		turn="X"
 	fi
@@ -58,28 +55,17 @@ function setCell(){
 			elif (( ${board[$cellNumber-1]} == $cellNumber ))
 			then
 				board[$cellNumber-1]=$turn
-				checkWinner
-				changeTurn
 				break
-
 			else
 				echo "Input is invalid or Cell is pre allocated"
 			fi
 
 		else
 
-			random=$((RANDOM % 9 + 1))
-
-			if (( ${board[$random-1]} == $random ))
-			then
-				board[$random-1]=$turn
-				checkWinner 
-				changeTurn
-				break
-			fi
-
+			isPlayerWinning $computer 
+			break
 		fi
-done
+	done
 }
 
 function checkWinner(){
@@ -110,6 +96,45 @@ function checkWinner(){
 	done
 }
 
+function isPlayerWinning(){
+	z=0
+	while [ $z -lt 9 ]
+	do
+		if [ ${board[$z]} != $computer ] && [ ${board[$z]} != $player ]
+		then
+			temp=${board[$z]}
+			board[$z]=$1
+			checkWinner
+			if [ $winner != "null" ]
+			then
+				board[$z]=$turn
+				winner="null"
+				break
+			else
+				board[$z]=$temp
+			fi
+		fi
+		((z++))
+	done
+
+	if [ $z == 9 ]
+	then
+		getRandomLocation
+	fi
+}
+
+function getRandomLocation(){
+	while true
+	do
+		random=$((RANDOM % 9 + 1))
+		if [ ${board[$random-1]} == $random ] && [ $z == 9 ]
+		then
+			board[$random-1]=$turn
+			break
+		fi
+	done
+}
+
 function checkLine(){
 	line=$1
 
@@ -124,18 +149,22 @@ function checkLine(){
 }
 
 function main(){
-	read turn player < <(toss)
+	read turn player computer < <(toss)
 	loop=1
-	while [ $winner == "null" ] && [ $loop -le 9 ]
+
+	while [ $winner == "null" ] && [ $loop -lt 9 ]
 	do
 		setCell
+		checkWinner
+		changeTurn
+		printBoard
 		((loop++))
 	done
 
 	case $winner in
-		X)echo "X is winner";;
-		O)echo "O is winner";;
-		*)echo "Match draw";;
+		X)echo "X is winner" ;;
+		O)echo "O is winner" ;;
+		*)echo "Match draw" ;;
 	esac
 }
 
