@@ -82,9 +82,14 @@ function computerMove(){
 	fi
 
 	if [ $flag == 0 ]
-	then
-		getRandomLocation
-	fi
+   then
+      checkCenter
+   fi
+
+#	if [ $flag == 0 ]
+#	then
+#		getRandomLocation
+#	fi
 }
 
 function checkCorners(){
@@ -97,6 +102,15 @@ function checkCorners(){
 			break
 		fi
 	done
+}
+
+function checkCenter(){
+	if [ ${board[4]} == 5 ]
+	then
+		board[$i]=$computer
+		flag=1
+	fi
+
 }
 
 function checkWinner(){
