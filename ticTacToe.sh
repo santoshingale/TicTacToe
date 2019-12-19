@@ -40,8 +40,6 @@ function changeTurn(){
 
 function setCell(){
 
-	printBoard
-
 	while true
 	do
 		if [ $player == $turn ]
@@ -86,10 +84,10 @@ function computerMove(){
       checkCenter
    fi
 
-#	if [ $flag == 0 ]
-#	then
-#		getRandomLocation
-#	fi
+	if [ $flag == 0 ]
+	then
+		checkSides
+	fi
 }
 
 function checkCorners(){
@@ -111,6 +109,17 @@ function checkCenter(){
 		flag=1
 	fi
 
+}
+function checkSides(){
+   for((i=0;i<9;i++))
+   do
+      if [ ${board[$i]} == $(( $i+1 )) ] && [ $(( $i % 2 )) != 0 ] && [ $i != 4 ]
+      then
+         board[$i]=$computer
+         flag=1
+         break
+      fi
+   done
 }
 
 function checkWinner(){
@@ -201,7 +210,7 @@ function checkLine(){
 function main(){
 	read turn player computer < <(toss)
 	loop=1
-
+	printBoard
 	while [ $winner == "null" ] && [ $loop -lt 9 ]
 	do
 		setCell
