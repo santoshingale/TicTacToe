@@ -3,10 +3,7 @@ echo "Welcome to TicTacToe game"
 
 declare -a board
 board=(1 2 3 4 5 6 7 8 9)
-player=""
-turn=""
 winner="null"
-flag=0
 
 function toss(){
 
@@ -40,60 +37,38 @@ function changeTurn(){
 
 function setCell(){
 
-	while true
-	do
-		if [ $player == $turn ]
+	if [ $player == $turn ]
+	then
+
+		read -p "Your Turn Enter Cell number : " cellNumber
+
+		if [ ${board[$cellNumber-1]} -eq $cellNumber ] && [ $cellNumber -le 9 ] && [ $cellNumber -gt 0 ]
 		then
-
-			read -p "Enter Cell number" cellNumber
-
-			if (( $cellNumber > 9 || $cellNumber < 0 ))
-			then
-				echo "Input is invalid"
-
-			elif (( ${board[$cellNumber-1]} == $cellNumber ))
-			then
-				board[$cellNumber-1]=$turn
-				break
-			else
-				echo "Input is invalid or Cell is pre allocated"
-			fi
-
+			board[$cellNumber-1]=$turn
 		else
-			computerMove
-			break
+			echo "Input is invalid or Cell is pre allocated"
+			setCell
 		fi
-	done
+
+	else
+		computerMove
+	fi
 }
 
 function computerMove(){
+
 	flag=0
-	isPlayerWinning $computer
-
-	if [ $flag == 0 ]
-	then
-		isPlayerWinning $player
-	fi
-	if [ $flag == 0 ]
-	then
-		checkCorners
-	fi
-
-	if [ $flag == 0 ]
-   then
-      checkCenter
-   fi
-
-	if [ $flag == 0 ]
-	then
-		checkSides
-	fi
+	checkWinning $computer
+	checkWinning $player
+	checkCorners
+	checkCenter
+	checkSides
 }
 
 function checkCorners(){
 	for((i=0;i<9;i++))
 	do
-		if [ ${board[$i]} == $(( $i+1 )) ] && [ $(( $i % 2 )) == 0 ] && [ $i != 4 ]
+		if [ ${board[$i]} == $(( $i+1 )) ] && [ $(( $i % 2 )) == 0 ] && [ $i != 4 ] && [ $flag == 0 ]
 		then
 			board[$i]=$computer
 			flag=1
@@ -103,17 +78,17 @@ function checkCorners(){
 }
 
 function checkCenter(){
-	if [ ${board[4]} == 5 ]
+	if [ ${board[4]} == 5 ] && [ $flag == 0 ]
 	then
 		board[$i]=$computer
 		flag=1
 	fi
-
 }
+
 function checkSides(){
    for((i=0;i<9;i++))
    do
-      if [ ${board[$i]} == $(( $i+1 )) ] && [ $(( $i % 2 )) != 0 ] && [ $i != 4 ]
+      if [ ${board[$i]} == $(( $i+1 )) ] && [ $(( $i % 2 )) != 0 ] && [ $i != 4 ] && [ $flag == 0 ]
       then
          board[$i]=$computer
          flag=1
@@ -123,7 +98,6 @@ function checkSides(){
 }
 
 function checkWinner(){
-	check=""
 
 	for((i=0,k=3;i<3;i++,k+=3))
 	do
@@ -152,11 +126,11 @@ function checkWinner(){
 	done
 }
 
-function isPlayerWinning(){
+function checkWinning(){
 
 	z=0
 
-	while [ $z -lt 9 ]
+	while [ $z -lt 9 ] && [ $flag == 0 ]
 	do
 		if [ ${board[$z]} != $computer ] && [ ${board[$z]} != $player ]
 		then
@@ -180,21 +154,8 @@ function isPlayerWinning(){
 
 }
 
-function getRandomLocation(){
-
-	while true
-	do
-		random=$((RANDOM % 9 + 1))
-
-		if [ ${board[$random-1]} == $random ]
-		then
-			board[$random-1]=$turn
-			break
-		fi
-	done
-}
-
 function checkLine(){
+
 	line=$1
 
 	if [ $line == "XXX" ]
@@ -204,14 +165,16 @@ function checkLine(){
 	then
 		winner=$turn
 	fi
-
 }
 
 function main(){
+
 	read turn player computer < <(toss)
 	loop=1
 	printBoard
-	while [ $winner == "null" ] && [ $loop -lt 9 ]
+	echo -e "Player symbol : $player \nComputer symbol : $computer"
+
+	while [ $winner == "null" ] && [ $loop -le 9 ]
 	do
 		setCell
 		checkWinner
@@ -219,6 +182,8 @@ function main(){
 		printBoard
 		((loop++))
 	done
+
+	printBoard
 
 	case $winner in
 		X)echo "X is winner" ;;
